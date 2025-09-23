@@ -1,0 +1,5 @@
+[book]
+authors = ["CountTails"]
+language = "en"
+src = "src"
+title = "Technical Specificiation for the Tournabyte Platform"
