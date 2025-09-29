@@ -1,4 +1,4 @@
-# Backlog Refinement - (Date)
+# Backlog Refinement - ($DATE)
 
 ## Items Discussed
 

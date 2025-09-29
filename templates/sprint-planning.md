@@ -1,4 +1,4 @@
-# Sprint Planning - Sprint Number (Start Date - End Date)
+# Sprint Planning - $SPRINT_NUMBER ($SPRINT_START - $SPRINT_END)
 
 ## Sprint Goals
 

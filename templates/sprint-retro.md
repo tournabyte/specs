@@ -1,4 +1,4 @@
-# Sprint Retrospective - (Sprint Number) (Date)
+# Sprint Retrospective - ($SPRINT_NUMBER) ($DATE)
 
 ## What went well?
 

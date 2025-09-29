@@ -1,4 +1,4 @@
-# Sprint Review - (Sprint Number) (Date)
+# Sprint Review - $SPRINT_NUMBER ($DATE)
 
 ## Sprint Goal Review
 
