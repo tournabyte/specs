@@ -21,7 +21,7 @@
   - [Monitoring and Logging]()
 - [Section 5: Decision Making](./section-05_decision-making/chapter-00_section-header.md)
   - [Architectural Decision Records](./section-05_decision-making/chapter-01_architectural-decision-records.md)
-    - [ADR 001]()
+    - [ADR 001](./section-05_decision-making/chapter-01a_adr-001.md)
 - [Section 6: Sprint Ceremony Records](./section-06_sprint-ceremony-records/chapter-00_section-header.md)
   - [Sprint 0]()
     - [Sprint Planning](./section-06_sprint-ceremony-records/sprint-00/01-sprint-planning.md)
