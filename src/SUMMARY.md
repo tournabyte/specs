@@ -20,7 +20,7 @@
   - [CI/CD Pipelines]()
   - [Monitoring and Logging]()
 - [Section 5: Decision Making](./section-05_decision-making/chapter-00_section-header.md)
-  - [Architectural Decision Records]()
+  - [Architectural Decision Records](./section-05_decision-making/chapter-01_architectural-decision-records.md)
     - [ADR 001]()
 - [Section 6: Sprint Ceremony Records](./section-06_sprint-ceremony-records/chapter-00_section-header.md)
   - [Sprint 0]()
