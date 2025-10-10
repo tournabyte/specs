@@ -36,5 +36,5 @@
   - [Sprint 2]()
     - [Sprint Planning](./section-06_sprint-ceremony-records/sprint-02/01-sprint-planning.md)
     - [Backlog Refinement](./section-06_sprint-ceremony-records/sprint-02/02-backlog-refinement.md)
-    - [Sprint Review]()
-    - [Sprint Retrospective]()
+    - [Sprint Review](./section-06_sprint-ceremony-records/sprint-02/03-sprint-review.md)
+    - [Sprint Retrospective](./section-06_sprint-ceremony-records/sprint-02/04-sprint-retro.md)
