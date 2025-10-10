@@ -5,8 +5,8 @@
 | ADR Number | 002 | <!-- Numeric identifier of this ADR -->
 | Title | Binary object storage solution | <!-- short, descriptive decision title -->
 | Date | 2025-10-09 | <!-- Date decision made -->
-| Status | Proposed | <!-- One of (Proposed/Accepted/Rejected/Superseded by/Deprecated) -->
-| Last Updated | 2025-10-09 | <!-- Date of last update -->
+| Status | Accepted | <!-- One of (Proposed/Accepted/Rejected/Superseded by/Deprecated) -->
+| Last Updated | 2025-10-10 | <!-- Date of last update -->
 
 ## Context
 
@@ -166,3 +166,4 @@ Using MinIO for the object storage service of the Tournabyte platform supports t
 | Date | Change description | Version |
 | ---- | ------------------ | ------- |
 | 2025-10-09 | Initial draft | 1.0 |
+| 2025-10-10 | Status update | 1.0 |

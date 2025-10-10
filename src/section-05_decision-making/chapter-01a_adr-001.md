@@ -5,8 +5,8 @@
 | ADR Number | 001 | <!-- Numeric identifier of this ADR -->
 | Title | Database management system selection | <!-- short, descriptive decision title -->
 | Date | 2025-10-08 | <!-- Date decision made -->
-| Status | Proposed | <!-- One of (Proposed/Accepted/Rejected/Superseded by/Deprecated) -->
-| Last Updated | 2025-10-08 | <!-- Date of last update -->
+| Status | Accepted | <!-- One of (Proposed/Accepted/Rejected/Superseded by/Deprecated) -->
+| Last Updated | 2025-10-10 | <!-- Date of last update -->
 
 ## Context
 
@@ -214,3 +214,4 @@ N/A
 | Date | Change description | Version |
 | ---- | ------------------ | ------- |
 | 2025-10-08 | Initial draft | 1.0 |
+| 2025-10-10 | Status update | 1.0 |
