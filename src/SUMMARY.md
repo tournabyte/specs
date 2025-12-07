@@ -58,3 +58,4 @@
     - [Sprint Planning](./section-06_sprint-ceremony-records/sprint-06/01-sprint-planning.md)
     - [Backlog Refinement](./section-06_sprint-ceremony-records/sprint-06/02-backlog-refinement.md)
     - [Sprint Review](./section-06_sprint-ceremony-records/sprint-06/03-sprint-review.md)
+    - [Sprint Retrospective](./section-06_sprint-ceremony-records/sprint-06/04-sprint-retro.md)
