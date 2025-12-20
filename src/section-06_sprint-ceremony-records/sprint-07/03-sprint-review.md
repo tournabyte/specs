@@ -3,6 +3,10 @@
 ## Sprint Goal Review
 <!-- Review of goal(s) made during this sprint's planning meeting -->
 <!-- Declare whether goals were (met / partially met / not met) and explain -->
+| Goal | Status |
+| ---- | ------ |
+| Enable account security measures with password authentication | Met |
+| Implement a password authentication workflow for authorization | Met |
 
 ## Completed Work
 
