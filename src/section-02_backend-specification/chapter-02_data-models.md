@@ -22,6 +22,13 @@ Documents of this type represent a user account on the Tournabyte platform. The 
   },
   "createdAt": "Date (auto)",
   "updatedAt": "Date (auto)",
+  "activeSessions": [
+    {
+      "tokenHash": "string",
+      "notValidBefore": "Date (auto)" // Essentially the creation timestamp
+      "notValidAfter": "Date (auto)" // Essentially the expiration timestamp
+    }
+  ]
 }
 ```
 

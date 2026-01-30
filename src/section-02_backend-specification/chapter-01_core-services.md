@@ -26,7 +26,7 @@ POST   /auth/logout
 POST   /auth/refresh
 GET    /auth/profile
 PUT    /auth/profile
-POST   /auth/change-password
+PUT    /auth/credentials
 ```
 
 ### User management
