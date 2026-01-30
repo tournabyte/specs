@@ -6,7 +6,7 @@
   - [Glossary](./section-01_product-overview/chapter-03_glossary.md)
 - [Section 2: Backend](./section-02_backend-specification/chapter-00_section-header.md)
   - [Core Services](./section-02_backend-specification/chapter-01_core-services.md)
-  - [Data Models]()
+  - [Data Models](./section-02_backend-specification/chapter-02_data-models.md)
   - [API Specification]()
 - [Section 3: Frontend]()
   - [Design Language]()
