@@ -566,8 +566,459 @@ Response 401
 
 ## Event endpoints
 
-## Team endpoints
+### Create event
+
+**Request**
+
+```http
+POST /v1/organizations/{id}/events
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "string",
+  "description": "string",
+  "game": "string",
+  "participantRequirements": {
+    "minimumParticipants": "integer",
+    "maximumParticipants": "integer",
+    "participantType": "individual|team",
+    "participantRegistrationOpen": bool
+  },
+  "schedule": {
+    "startsAt": "Date",
+    "endsAt": "Date"
+  },
+  "prize": {
+    "totalAmount": "integer",
+    "currency": "string (ISO4217)"
+    "distribution": [
+      {
+        "placement": "integer",
+        "amount": "integer"
+      },
+      ...
+    ]
+  }
+}
+```
+
+**OK response**
+
+```http
+Response 201:
+{
+  "ok": true,
+  "data": {
+    "id": "string",
+    "logo": "string|null",
+    "banner": "string|null",
+    "name": "string",
+    "description": "string",
+    "game": "string",
+    "participantRequirements": {
+      "minimumParticipants": "integer",
+      "maximumParticipants": "integer",
+      "participantType": "individual|team",
+      "participantRegistrationOpen": bool
+    },
+    "schedule": {
+      "startsAt": "Date",
+      "endsAt": "Date"
+    },
+    "prize": {
+      "totalAmount": "integer",
+      "currency": "string (ISO4217)"
+      "distribution": [
+        {
+          "placement": "integer",
+          "amount": "integer"
+        },
+        ...
+      ]
+    },
+    "participants": [],
+    "matches": []
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "event was not created",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+```
+
+### Update event
+
+**Request**
+
+```http
+PUT /v1/organizations/{id}/events
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "string",
+  "description": "string",
+  "game": "string",
+  "participantRequirements": {
+    "minimumParticipants": "integer",
+    "maximumParticipants": "integer",
+    "participantType": "individual|team",
+    "participantRegistrationOpen": bool
+  },
+  "schedule": {
+    "startsAt": "Date",
+    "endsAt": "Date"
+  },
+  "prize": {
+    "totalAmount": "integer",
+    "currency": "string (ISO4217)"
+    "distribution": [
+      {
+        "placement": "integer",
+        "amount": "integer"
+      },
+      ...
+    ]
+  }
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "id": "string",
+    "logo": "string|null",
+    "banner": "string|null",
+    "name": "string",
+    "description": "string",
+    "game": "string",
+    "participantRequirements": {
+      "minimumParticipants": "integer",
+      "maximumParticipants": "integer",
+      "participantType": "individual|team",
+      "participantRegistrationOpen": bool
+    },
+    "schedule": {
+      "startsAt": "Date",
+      "endsAt": "Date"
+    },
+    "prize": {
+      "totalAmount": "integer",
+      "currency": "string (ISO4217)"
+      "distribution": [
+        {
+          "placement": "integer",
+          "amount": "integer"
+        },
+        ...
+      ]
+    },
+    "participants": [],
+    "matches": []
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "event was not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+```
+
+### Create participant registration
+
+**Request**
+
+```http
+POST /v1/organizations/{id}/events/{id}/registration
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "registerAs": "string (participant/team ID)",
+  "notes": "string (optional)"
+}
+```
+
+**OK response**
+
+```http
+Response 201:
+{
+  "ok": true,
+  "data": {
+    "id": "string",
+    "notes": "string",
+    "status": "pending",
+    "registeredAt": "Date"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "registration not completed",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
+### Update participant registration
+
+**Request**
+
+```http
+PUT /v1/organizations/{id}/events/{id}/registration/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "status": "string"
+  "notes": "string (optional)"
+}
+```
+
+**OK response**
+
+```http
+Response 201:
+{
+  "ok": true,
+  "data": {
+    "id": "string",
+    "notes": "string",
+    "status": "string",
+    "registeredAt": "Date"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "registration not completed",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
+### Get bracket
+
+**Request**
+
+```http
+GET /v1/organizations/{id}/events/{id}/bracket
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**OK response**
+
+```http
+{
+  "ok": true,
+  "data": {
+    "matchgraph": "<graph>"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 404
+{
+  "ok": false,
+  "error": {
+    "message": "resource not found",
+    "reason": "the bracket for event with ID {id} does not exist"
+  }
+}
+
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+```
+
+## Participant endpoints
+
+### Add player participant
+
+### Update player participant
+
+### Delete player participant
+
+### Add team participant
+
+### Update team participant
+
+### Delete team participant
 
 ## Match endpoints
 
+### Update match status
+
+### Update match schedule
+
+### Update match result
+
 ## Supporting endpoints
+
+### File upload
+
+**Request**
+
+```http
+PUT /v1/files/
+Authorization: Bearer <token>
+Content-Type: form/data
+
+key: string
+contents: bytes
+```
+
+**OK response**
+
+```http
+Response 200
+{
+  "ok": true,
+  "data": {
+    "key": "file contents successfully uploaded"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "details": {
+      "reason": "presented token has insufficient claim to the requested resource",
+      "resolve": "refresh access token and try again"
+  }
+}
+```
+
+### File retrieval
+
+**Request**
+
+```http
+GET /v1/files/?key={path}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "downloadLink": "string"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 404
+{
+  "ok": false,
+  "error": {
+    "message": "requested resource not found",
+    "details": {
+      "path": "no file associated with this key"
+    }
+  }
+}
+```
