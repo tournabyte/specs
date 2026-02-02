@@ -7,7 +7,7 @@
 - [Section 2: Backend](./section-02_backend-specification/chapter-00_section-header.md)
   - [Core Services](./section-02_backend-specification/chapter-01_core-services.md)
   - [Data Models](./section-02_backend-specification/chapter-02_data-models.md)
-  - [API Specification]()
+  - [API Specification](./section-02_backend-specification/chapter-03_api-specification.md)
 - [Section 3: Frontend]()
   - [Design Language]()
   - [UX Principles]()
