@@ -32,6 +32,26 @@ Documents of this type represent a user account on the Tournabyte platform. The 
 }
 ```
 
+### Player profiles
+
+Documents of this type represent a player within an organization. Users can create then by joining an organization and organizers can create them as stubs for event participation. The documents are expected to be stored under a `profiles` collection within a `tournabyte` database
+
+```json
+{
+  "_id": "ObjectId"
+  "displayName": "string (required)", // Used for public profiles
+  "avatarKey": "string (MinIO Key, optional)",
+  "bio": "string (optional)",
+  "preferences": {
+    "language": "string (default: 'en')",
+    "timezone": "string (default: 'UTC')",
+  },
+  "createdAt": "Date (auto)",
+  "updatedAt": "Date (auto)",
+  "claimedBy": "ObjectId (optional)" // The user account owning this player profile (if it exists)
+}
+```
+
 ### Organizations
 
 Documents of this type represent an organized community on the Tournabyte platform. The documents are expected to be stored under a `organizations` collection within a `tournabyte` database.

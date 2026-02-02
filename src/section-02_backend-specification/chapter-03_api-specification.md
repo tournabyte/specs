@@ -928,15 +928,485 @@ Response 401
 
 ### Add player participant
 
+**Request**
+
+```http
+POST /v1/organizations/{id}/player
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "displayName": "string",
+  "bio": "string"
+}
+```
+
+**OK response**
+
+```http
+Response 201:
+{
+  "ok": true,
+  "data": {
+    "player": {
+      "id": "string",
+      "displayName": "string",
+      "bio": "string"
+    },
+    "createdAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "player not created",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
 ### Update player participant
+
+**Request**
+
+```http
+PUT /v1/organizations/{id}/player/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "displayName": "string",
+  "bio": "string"
+  "preferences": {
+    "language": "string (default: 'en')",
+    "timezone": "string (default: 'UTC')",
+  },
+  "claimedBy": string (account claim for player profile)
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "player": {
+      "displayName": "string",
+      "bio": "string"
+      "preferences": {
+        "language": "string (default: 'en')",
+        "timezone": "string (default: 'UTC')",
+      },
+      "claimedBy": string (account claim for player profile)
+    }
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "player not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
 
 ### Delete player participant
 
+**Request**
+
+```http
+DELETE /v1/organizations/{id}/player/{id}
+Authorization: Bearer <token>
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "player": "player profile with ID {id} was successfully deleted"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 404
+{
+  "ok": false,
+  "error": {
+    "message": "player not deleted",
+    "details": {
+      "id": "no such player ID {id}"
+    }
+  }
+}
+```
+
 ### Add team participant
+
+**Request**
+
+```http
+POST /v1/organizations/{id}/team
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "string",
+  "description": "string",
+  "roster": [
+    {
+      "playerID": "string",
+      "role": "captain",
+      "joinedAt": "Date (auto)"
+    }
+  ]
+}
+```
+
+**OK response**
+
+```http
+Response 201:
+{
+  "ok": true,
+  "data": {
+    "team": {
+      "id": "string",
+      "name": "string",
+      "logoKey": "string|null",
+      "bannerKey": "string|null",
+      "roster": [
+        {
+          "playerID": "string", // References an account's "_id" field. Captain is automatically part of this list
+          "role": "string oneof(captain, starter, bench)",
+          "joinedAt": "Date (auto)"
+        }
+      ],
+    },
+    "createdAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "team not created",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
 
 ### Update team participant
 
+**Request**
+
+```http
+PUT /v1/organizations/{id}/team
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "string",
+  "description": "string",
+  "roster": [
+    {
+      "playerID": "string",
+      "role": "captain",
+      "joinedAt": "Date (auto)"
+    }
+  ]
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "team": {
+      "id": "string",
+      "name": "string",
+      "logoKey": "string|null",
+      "bannerKey": "string|null",
+    },
+    "updatedAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "team not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
+### Update team roster
+
+**Request**
+
+```http
+PUT /v1/organizations/{id}/team/roster
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "roster": [
+    {
+      "playerID": "string",
+      "role": "captain",
+      "joinedAt": "Date (auto)"
+    },
+    ...
+  ]
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "roster": [
+      {
+        "playerID": "string",
+        "role": "captain",
+        "joinedAt": "Date (auto)"
+      },
+      ...
+    ]
+    "updatedAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "roster not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
+### Update team achievements
+
+**Request**
+
+```http
+PUT /v1/organizations/{id}/team/achievements
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "achievements": [
+      {
+        "event": "string",
+        "placement": "integer",
+        "achievedAt": "Date (auto)"
+      },
+      ...
+  ]
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "achievements": [
+      {
+        "event": "string",
+        "placement": "integer",
+        "achievedAt": "Date (auto)"
+      }
+    ],
+    "updatedAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "achievements not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
 ### Delete team participant
+
+**Request**
+
+```http
+DELETE /v1/organizations/{id}/team/{id}
+Authorization: Bearer <token>
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "player": "team profile with ID {id} was successfully deleted"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 404
+{
+  "ok": false,
+  "error": {
+    "message": "team not deleted",
+    "details": {
+      "id": "no such team ID {id}"
+    }
+  }
+}
+```
 
 ## Match endpoints
 
