@@ -1412,9 +1412,177 @@ Response 404
 
 ### Update match status
 
+**Request**
+
+```http
+PUT /v1/organizations/{id}/events/{id}/matches/{id}/status
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "status": "string oneof(scheduled, in-progress, completed, disputed, cancelled)"
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "match": {...}
+    "updatedAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "match not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
 ### Update match schedule
 
+**Request**
+
+```http
+PUT /v1/organizations/{id}/events/{id}/matches/{id}/schedule
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "startsAt": "Time (auto)",
+  "estimatedDuration": "integer (in minutes)",
+  "streamURLs": {
+    "twitch": "string",
+    "youtube": "string",
+    ...
+  }
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "match": {...}
+    "updatedAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "match not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
+
 ### Update match result
+
+**Request**
+
+```http
+PUT /v1/organizations/{id}/events/{id}/matches/{id}/result
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "finalScores": {
+      "game 1": {
+        "ObjectId": "integer",
+        ... // One for each participant
+      },
+      ... // One for each game played
+    },
+    "evidence": [
+      {
+        "evidenceKey": "string (MinIO Key, optional)",
+        "evidenceDescription": "string (optional)"
+      },
+    ]
+}
+```
+
+**OK response**
+
+```http
+Response 200:
+{
+  "ok": true,
+  "data": {
+    "match": {...}
+    "updatedAt": "Date (auto)"
+  }
+}
+```
+
+**Not OK response**
+
+```http
+Response 401
+{
+  "ok": false,
+  "error": {
+    "message": "access denied",
+    "reason": "presented token has insufficient claim to the requested resource",
+    "resolve": "refresh access token and try again"
+  }
+}
+
+Response 400
+{
+  "ok": false,
+  "error": {
+    "message": "match not updated",
+    "details": {
+      "<field>": "validation failed"
+    }
+  }
+}
+```
 
 ## Supporting endpoints
 
