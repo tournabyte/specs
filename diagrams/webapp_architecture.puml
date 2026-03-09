@@ -1,0 +1,45 @@
+@startuml
+' Define components
+component "Flutter Web Frontend" {
+    [User Interface] as UI
+}
+
+component "GoLang Backend API" {
+    [Auth Service] as Auth
+    [User Management] as Users
+    [Organization Management] as Orgs
+    [Team Management] as Teams
+    [Event Management] as Events
+    [Match Scheduling/Reporting] as Matches
+    [API Gateway] as API
+}
+
+component "Data Storage" {
+    [NoSQL Database] as DB
+    [S3 Compatible Storage] as S3
+}
+
+' Define relationships
+UI --> API : HTTP Requests
+API --> Auth : Authenticate
+API --> Users : Manage Users
+API --> Orgs : Manage Organizations
+API --> Teams : Manage Teams
+API --> Events : Manage Events
+API --> Matches : Schedule/Report Matches
+
+Auth --> DB : Store/Retrieve Auth Data
+Users --> DB : Store/Retrieve User Data
+Orgs --> DB : Store/Retrieve Org Data
+Teams --> DB : Store/Retrieve Team Data
+Events --> DB : Store/Retrieve Event Data
+Matches --> DB : Store/Retrieve Match Data
+
+API --> DB : Read/Write Data
+API --> S3 : Upload/Download Media
+
+' Define storage dependencies
+DB --> S3 : Reference Media Files (via URLs)
+S3 --> DB : Store Media References
+
+@enduml

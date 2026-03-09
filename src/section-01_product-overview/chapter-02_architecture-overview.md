@@ -63,4 +63,4 @@ Current e-sports organizations face significant operational inefficiencies due t
 - **Container Runtime**: Docker
 - **Version Control**: Git
 
-
+![Application Architecture](../figures/webapp_architecture.svg)
