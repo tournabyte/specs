@@ -1,0 +1,230 @@
+@startuml
+
+entity ACCOUNT {
+    _id: ObjectID <<key,generated>>
+    --
+    login_id: String <<email-like>>
+    password_hash: String
+    created_at: Timestamp
+    updated_at: Timestamp
+  }
+
+entity SESSION {
+    _id: String <<key,required>>
+    --
+    not_valid_before: Timestamp
+    not_valid_after: Timestamp
+    for: ObjectID <<REF(ACCOUNT)>>
+  }
+
+entity PLAYER {
+    --
+    display_name: String
+    avatar_key: String <<path-like>>
+    bio: String <<optional>>
+    alias_of: ObjectID <<optional,REF(ACCOUNT)>>
+    is_primary: Boolean
+    preferences: PLAYER_PREFERENCES
+    socials: []SOCIAL_LINK
+  }
+
+entity PLAYER_PREFERENCES {
+  language: String <<default('en')>>
+  timezone: String <<default('UTC')>>
+  }
+
+entity SOCIAL_LINK {
+    link_name: String
+    link_url: String <<url-like>>
+  }
+
+entity ORGANIZATION {
+    _id: ObjectID <<key,generated>>
+    --
+    name: String <<required>>
+    description: String <<optional>>
+    logo_key: String <<optional,path-like>>
+    banner_key: String <<optional,path-like>>
+    contact: String <<required,email-like>>
+    socials: []SOCIAL_LINK
+  }
+
+entity ORGANIZATION_MEMBER {
+    _id: ObjectID <<key,generated>>
+    --
+    role: Integer
+    joined_at: Timestamp
+    org: ObjectID <<REF(ORGANIZATION)>>
+    --
+    player: PLAYER
+    --
+    team: TEAM
+  }
+
+entity TEAM {
+    --
+    name: String <<required>>
+    description: String <<optional>>
+    logo_key: String <<optional,path-like>>
+    banner_key: String <<optional,path-like>>
+    roster: []TEAM_MEMBER
+    achievements: []TEAM_ACHIEVEMENT
+  }
+
+entity TEAM_MEMBER {
+    player: ObjectID <<REF(ORGANIZATION_MEMBER),TYPE('player')>>
+    joined_at: Timestamp
+    role: Integer
+  }
+
+entity TEAM_ACHIEVEMENT {
+    _id: ObjectID <<REF(EVENT)>>
+    --
+    placement: String
+    achieved_at: Timestamp
+  }
+
+entity EVENT {
+    _id: ObjectID <<key,generated>>
+    --
+    name: String <<required>>
+    description: String <<optional>>
+    logo_key: String <<optional,path-like>>
+    banner_key: String <<optional,path-like>>
+    game: String <<required>>
+    operated_by: ObjectID <<REF(ORGANIZATION)>>
+    participation_requirements: EVENT_PARTICIPATION
+    schedule: EVENT_SCHEDULE
+    prize_pool: EVENT_PRIZE_POOL
+    participants: []ObjectID <<REF(PLAYER),REF(ORGANIZATION_TEAM)>>
+    matches: Map<ObjectID,[]ObjectID> <<REF(EVENT_MATCH)>>
+  }
+
+entity EVENT_PARTICIPATION_RULES {
+    min_participants: Integer
+    max_participants: Integer
+    participant_type: String <<oneof('team','individual')>>
+    registration_open: Boolean
+  }
+
+entity EVENT_SCHEDULE {
+    starts_at: Timestamp
+    ends_at: Timestamp
+  }
+
+entity EVENT_PRIZE_POOL {
+    currency: String <<ISO4217>>
+    distribution: []EVENT_PRIZE_DISTRIBUTION
+  }
+
+entity EVENT_PRIZE_DISTRIBUTION {
+    placement: String
+    amount: Integer
+  }
+
+entity MATCH {
+    _id: ObjectID <<key,generated>>
+    status: String <<oneof(scheduled,in-progress,completed,cancelled,disputed)>>
+    participants: MATCH_PARTICIPANTS
+    schedule: MATCH_SCHEDULE
+    result: MATCH_RESULT
+  }
+
+entity MATCH_PARTICIPANTS {
+    away: ObjectID <<REF(ORGANIZATION_MEMBER)>>
+    home: ObjectID <<REF(ORGANIZATION_MEMBER)>>
+  }
+
+entity MATCH_SCHEDULE {
+    starts_at: Timestamp
+    estimated_duration: Duration
+    how_to_watch: []SOCIAL_LINK
+  }
+
+entity MATCH_RESULT {
+    winner: ObjectID <<REF(ORGANIZATION_MEMBER)>>
+    completed_at: Timestamp
+    reported_by: ObjectID <<REF(ORGANIZATION_MEMBER)>>
+    Scores: []GAME_RESULT
+  }
+
+entity GAME_RESULT {
+    away: Integer
+    home: Integer
+    evidence_key: String <<path-like>>
+    evidence_description: String <<optional>>
+  }
+
+ACCOUNT "1" <-- "..5" SESSION
+ACCOUNT "1" <-- "1..M" PLAYER
+PLAYER "1" *-- "1" PLAYER_PREFERENCES
+PLAYER "1" *-- "0..20" SOCIAL_LINK
+ORGANIZATION "1" *-- "0..50" SOCIAL_LINK
+ORGANIZATION "1" <-- "1..M" ORGANIZATION_MEMBER
+ORGANIZATION "1" <-- "0..M" EVENT
+ORGANIZATION_MEMBER "1" <|-- "1" PLAYER
+ORGANIZATION_MEMBER "1" <|-- "1" TEAM
+TEAM "1" *-- "1..M" TEAM_MEMBER
+TEAM "1" *-- "0..M" TEAM_ACHIEVEMENT
+TEAM "1..N" <-- "1..M" ORGANIZATION_MEMBER
+EVENT_PRIZE_POOL "1" *-- "0..M" EVENT_PRIZE_DISTRIBUTION
+EVENT "1" *-- "1" EVENT_PRIZE_POOL
+EVENT "1" *-- "1" EVENT_SCHEDULE
+EVENT "1" *-- "1" EVENT_PARTICIPATION_RULES
+EVENT "1" <-- "1..M" MATCH
+MATCH "1" *-- "1" MATCH_PARTICIPANTS
+MATCH "1" *-- "1" MATCH_SCHEDULE
+MATCH "1" *-- "1" MATCH_RESULT
+MATCH_RESULT "1" *-- "1..M" GAME_RESULT
+
+note right of PLAYER
+  A path-like string used as a key to an S3 compatible bucket
+end note
+
+note right of ORGANIZATION
+  A path-like string used as a key to an S3 compatible bucket
+end note
+
+note right of TEAM
+  A path-like string used as a key to an S3 compatible bucket
+end note
+
+note left of ORGANIZATION_MEMBER
+  Role bits determine level of access
+    - 1st: admin
+    - 2nd: staff
+    - 3rd: participant
+    - 4th: observer
+  Only one member may have the admin role (indicates ownership)
+end note
+
+note bottom of ORGANIZATION_MEMBER
+  The `team` and `player` fields exists mutually exclusive of each other to determine the membership type
+end note
+
+note left of TEAM_MEMBER
+  Role bits determine level of access
+    - 1st: captain
+    - 2nd: coach
+    - 3rd: player
+    - 4th: bench
+  Only one member may have the caption role (indicates leadership)
+end note
+
+note bottom of EVENT
+  Participating members list must be unique (no duplicates)
+  If teams are the participants, uniqueness must be maintained accross all team's members
+end note
+
+note right of EVENT
+  The `matches` field represents an adjacency list of the matches that are part of this event
+  This adjacency list will be useful in generated bracket visuals and tracking event progress
+  The keys of the adjacency list are the full collection of matches part of an event
+end note
+
+note top of MATCH_PARTICIPANTS
+  Participating members should be of same type
+  Both are teams or both are individual players
+end note
+
+@enduml

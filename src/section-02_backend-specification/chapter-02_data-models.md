@@ -4,6 +4,8 @@
 
 The following code snippets illustrate the anticipated structure of the documents stored within Mongo DB. As the database support flexible schemas, fields can be added or removed as needed
 
+![Data Models](./../figures/data-model.svg)
+
 ### User accounts
 
 Documents of this type represent a user account on the Tournabyte platform. The documents are expected to be stored under a `accounts` collection within a `tournabyte` database.
