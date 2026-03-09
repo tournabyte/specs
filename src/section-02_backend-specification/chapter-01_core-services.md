@@ -20,38 +20,11 @@
 **Key Endpoints**:
 
 ```
-POST   /auth/register
-POST   /auth/login
-POST   /auth/logout
-POST   /auth/refresh
-GET    /auth/profile
-PUT    /auth/profile
-PUT    /auth/credentials
-```
-
-### User management
-
-- **Purpose**: User profile management and user-related operations
-- **Database**: Users collection
-- **File storage**: MinIO avatars bucket
-- **Dependencies**: Authorization, MongoDB, MinIO
-- **Tech Stack**: Go, Gin framework, MongoDB driver, MinIO SDK
-
-**Responsibilities**:
-
-- User profile CRUD operations
-- Avatar and media upload
-- User preferences management
-- User search and discovery
-
-**Key Endpoints**:
-
-```
-GET    /users/{id}
-PUT    /users/{id}
-GET    /users/search
-POST   /users/{id}/avatar
-PUT    /users/{id}/preferences
+POST   /auth/register     --create user
+POST   /auth/login        --create session
+DELETE /auth/login        --revoke session
+POST   /auth/refresh      --renew session
+PUT    /auth/credentials  --change password
 ```
 
 ### Organization management
@@ -73,21 +46,25 @@ PUT    /users/{id}/preferences
 **Key Endpoints**:
 
 ```
-GET    /organizations
-POST   /organizations
-GET    /organizations/{id}
-PUT    /organizations/{id}
-DELETE /organizations/{id}
-POST   /organizations/{id}/members
-PUT    /organizations/{id}/members/{userId}
-DELETE /organizations/{id}/members/{userId}
-POST   /organizations/{id}/logo
+GET    /organizations                         --get page of organization (query parameter filters)
+POST   /organizations                         --create an organization
+GET    /organizations/{id}                    --get a specific organization
+PUT    /organizations/{id}                    --update a specific organization
+DELETE /organizations/{id}                    --remove an organization
+POST   /organizations/{id}/members            --add a member to the organization
+GET    /organizations/{id}/members/{id}       --retrieve an organization members data (could be team or player)
+PUT    /organizations/{id}/members/{id}       --update an organization member (could be team or player)
+DELETE /organizations/{id}/members/{id}       --remove a member from the organization
+PUT    /organizations/{id}/logo               --set a specific organization's logo image
+PUT    /organizations/{id}/banner             --set a specific organization's banner image
+PUT    /organizations/{id}/social             --set a social link key:value pair
+DELETE /organizations/{id}/social             --remove a social link key:value pair
 ```
 
-### Team management
+### Membership management
 
-- **Purpose**: Team management and roster operations
-- **Database**: Teams collection
+- **Purpose**: management of sub-resources of organization member (players and teams)
+- **Database**: Membership collection (sub-collections of either type `player` or `team`)
 - **Dependencies**: Authentication Service, Organization Service, MongoDB, MinIO
 
 **Responsibilities**:
@@ -97,18 +74,31 @@ POST   /organizations/{id}/logo
 - Team achievements tracking
 - Team branding
 - Team search and discovery
+- Player profile CRUD operations
+- Avatar and media upload
+- Player preferences management
+- Player search and discovery
 
-**Key Endpoints**:
+**Key Endpoints** (assumed prefix of `/organizations/{id}/members/{id}/`):
+
 ```
-GET    /teams
-POST   /teams
-GET    /teams/{id}
-PUT    /teams/{id}
-DELETE /teams/{id}
-POST   /teams/{id}/roster
-PUT    /teams/{id}/roster/{userId}
-DELETE /teams/{id}/roster/{userId}
-POST   /teams/{id}/achievements
+-- Team specific
+PUT    %PREFIX%/roster/          --add a player to a roster (must be in same organization)
+GET    %PREFIX%/roster/{id}      --view a roster member's profile (this is a player and players should update their own profiles)
+DELETE %PREFIX%/roster/{id}      --remove a player from a roster
+POST   %PREFIX%/achievements     --award an achievement to a team
+GET    %PREFIX%/achievements     --list team achievements
+GET    %PREFIX%/logo             --get a team's logo image
+PUT    %PREFIX%/logo             --set a team's logo image
+GET    %PREFIX%/banner           --get a team's banner image
+PUT    %PREFIX%/banner           --set a team's banner image
+-- Player specific
+GET    %PREFIX%/avatar           --get a player's avatar image
+PUT    %PREFIX%/avatar           --set a player's avatar image
+GET    %PREFIX%/preferences      --get a player's preferences
+PUT    %PREFIX%/preferences      --set a player's preferences
+PUT    %PREFIX%/social           --set a social link key:value pair
+DELETE %PREFIX%/social      --remove a social link key:value pair
 ```
 
 ### Event management
@@ -125,18 +115,28 @@ POST   /teams/{id}/achievements
 - Tournament settings and rules
 - Tournament search and filtering
 
-**Key Endpoints**:
+**Key Endpoints** (assumed prefix of `/organizations/{id}/`):
 
 ```
-GET    /tournaments
-POST   /tournaments
-GET    /tournaments/{id}
-PUT    /tournaments/{id}
-DELETE /tournaments/{id}
-POST   /tournaments/{id}/register
-GET    /tournaments/{id}/registrations
-PUT    /tournaments/{id}/registrations/{regId}
-POST   /tournaments/{id}/generate-bracket
+GET    %PREFIX%/events                                   --list an organizations events
+POST   %PREFIX%/events                                   --create a new event
+GET    %PREFIX%/events/{id}                              --get a specific event
+PUT    %PREFIX%/events/{id}                              --update a specific event
+DELETE %PREFIX%/events/{id}                              --remove a specific event
+GET    %PREFIX%/events/{id}/logo                         --get an event's logo image
+PUT    %PREFIX%/events/{id}/logo                         --set an event's logo image
+GET    %PREFIX%/events/{id}/banner                       --get a event's banner image
+PUT    %PREFIX%/events/{id}/banner                       --set a event's banner image
+GET    %PREFIX%/events/{id}/registrations                --get an event's registration requirements
+PUT    %PREFIX%/events/{id}/registrations                --set an event's registration requirements
+GET    %PREFIX%/events/{id}/schedule                     --get an event's schedule information
+PUT    %PREFIX%/events/{id}/schedule                     --set an event's schedule information
+GET    %PREFIX%/events/{id}/prize                        --get an event's prize pool information
+PUT    %PREFIX%/events/{id}/prize                        --set an event's prize pool information
+PUT    %PREFIX%/events/{id}/participants                 --add a team/player participant
+DELETE %PREFIX%/events/{id}/participants/{id}            --remove a team/player from the participants list
+POST   %PREFIX%/events/{id}/bracket                      --generate the event bracket (replaced if already existing)
+GET    %PREFIX%/events/{id}/bracket                      --get the current event bracket
 ```
 
 ### Matchmaking
@@ -154,16 +154,14 @@ POST   /tournaments/{id}/generate-bracket
 - Match status updates
 - Score tracking
 
-**Key Endpoints**:
+**Key Endpoints** (assumed prefix of `/organizations/{id}/events/{id}`):
 
 ```
-GET    /matches
-GET    /matches/{id}
-PUT    /matches/{id}/schedule
-POST   /matches/{id}/result
-PUT    /matches/{id}/result
-POST   /matches/{id}/evidence
-GET    /tournaments/{tournamentId}/matches
+PUT    %PREFIX%/matches/{id}/schedule            --set a match's schedule
+GET    %PREFIX%/matches/{id}/schedule            --get a match's schedule
+PUT    %PREFIX%/matches/{id}/result              --set a match's result
+GET    %PREFIX%/matches/{id}/result              --get a match's result
+GET    %PREFIX%/matches/{id}/participants        --get a match's participant pair
 ```
 
 ## Supporting services
@@ -180,15 +178,6 @@ GET    /tournaments/{tournamentId}/matches
 - File metadata storage
 - CDN URL generation
 - File access control
-
-**Key Endpoints**:
-
-```
-POST   /upload/image
-POST   /upload/video
-GET    /files/{id}
-DELETE /files/{id}
-```
 
 ### API Gateway
 
