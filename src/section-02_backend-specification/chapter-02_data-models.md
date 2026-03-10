@@ -13,44 +13,24 @@ Documents of this type represent a user account on the Tournabyte platform. The 
 ```json
 {
   "_id": "ObjectId",
-  "email": "string (unique, required)", // Used for login
-  "passwordHash": "string (required)",
-  "displayName": "string (required)", // Used for public profiles
-  "avatarKey": "string (MinIO Key, optional)",
-  "bio": "string (optional)",
-  "preferences": {
-    "language": "string (default: 'en')",
-    "timezone": "string (default: 'UTC')",
-  },
-  "createdAt": "Date (auto)",
-  "updatedAt": "Date (auto)",
-  "activeSessions": [
-    {
-      "tokenHash": "string",
-      "notValidBefore": "Date (auto)" // Essentially the creation timestamp
-      "notValidAfter": "Date (auto)" // Essentially the expiration timestamp
-    }
-  ]
+  "logid_id": "string (unique, required)", // Used for login
+  "password_hash": "string (required)",
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp",
 }
 ```
 
-### Player profiles
+### Sessions
 
-Documents of this type represent a player within an organization. Users can create then by joining an organization and organizers can create them as stubs for event participation. The documents are expected to be stored under a `profiles` collection within a `tournabyte` database
+Documents of this type represent an active session for a user account. The documents are expected to be stored under a `sessions` collection within a `tournabyte` database
 
 ```json
 {
-  "_id": "ObjectId"
-  "displayName": "string (required)", // Used for public profiles
-  "avatarKey": "string (MinIO Key, optional)",
-  "bio": "string (optional)",
-  "preferences": {
-    "language": "string (default: 'en')",
-    "timezone": "string (default: 'UTC')",
-  },
-  "createdAt": "Date (auto)",
-  "updatedAt": "Date (auto)",
-  "claimedBy": "ObjectId (optional)" // The user account owning this player profile (if it exists)
+  "_id": "string", //hashed refresh token
+  "not_valid_before": "Timestamp",
+  "not_valid_after": "Timestamp",
+  "authorizes": "ObjectId", // references account collection
+  "refresh_left": "integer" // when hits 0, session should be deleted (invalidating the refresh token)
 }
 ```
 
@@ -62,36 +42,58 @@ Documents of this type represent an organized community on the Tournabyte platfo
 {
   "_id": "ObjectId",
   "name": "string (required)",
-  "slug": "string (unique, required)",
   "description": "string (optional)",
-  "logoKey": "string (MinIO Key, optional)",
-  "bannerKey": "string (MinIO Key, optional)",
-  "contactEmail": "string (required)", //Defaults to owner's email, but can be changed
-  "socialLinks": { // Omitted if empty
+  "logo_key": "string (MinIO Key, optional)",
+  "banner_key": "string (MinIO Key, optional)",
+  "contact": "string (required)", //Defaults to owner's email, but can be changed
+  "social_links": { // Omitted if empty
     "twitter": "string",
     "discord": "string",
     "twitch": "string",
     "youtube": "string"
   },
-  "createdAt": "Date (auto)",
-  "updatedAt": "Date (auto)",
-  "members": [
-    {
-      "user": "ObjectId" // References an account's "_id" field. Creator is automatically part of this list
-      "role": "string oneof(admin, staff, participant, spectator)"
-      "joinedAt": "Date (auto)"
-    },
-  ],
-  "teams": [
-    {
-      "team": "ObjectId" // References a team's "_id" field.
-      "role": "string (default to participant)",
-      "joinedAt": "Date (auto)"
-    }
-  ],
-  "events": [
-    "ObjectId" // References an event's "_id" field
-  ]
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp",
+}
+```
+
+### Members 
+
+Documents of this type represent a membership link between a player or a team and an organization. The documents are expected to be stored under a `membership` collection within a `tournabyte` database
+
+```json
+{
+  "_id": "ObjectId",
+  "role": "bytes",
+  "joined_at": "Timestamp",
+  "player": "<player extension>", // field should exist if the member represents a player (and team should be null)
+  "team": "<team extension>"  // field should exist if the member represents a team (and player should be null)
+}
+```
+
+### Players
+
+Documents of this type extend the membership document. These are stored as sub-documents of the `membership` collection
+
+```json
+{
+  "display_name": "string",
+  "avatar_key": "string",
+  "bio": "string", // optional
+  "alias_of": "ObjectId", // reference to an account (can be null to indicate a stub profile)
+  "is_primary": "boolean",
+  "preferences": {
+    "language": "String", //default of 'en'
+    "timezone": "String" //default of 'UTC'
+  },
+  "social_links": { // Omitted if empty
+    "twitter": "string",
+    "discord": "string",
+    "twitch": "string",
+    "youtube": "string"
+  },
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp",
 }
 ```
 
@@ -102,27 +104,27 @@ Documents of this type represent an organized group of players intending to part
 ```json
 {
   "_id": "ObjectId",
-  "name": "string (required)",
-  "slug": "string (required)",
-  "discription": "string (optional)",
-  "logoKey": "string (MinIO Key, optional)",
-  "bannerKey": "string (MinIO Key, optional)",
+  "name": "string",
+  "discription": "string", // optional
+  "logo_key": "string", // MinIO key
+  "banner_key": "string", // MinIO key
   "roster": [
     {
-      "user": "ObjectId", // References an account's "_id" field. Captain is automatically part of this list
-      "role": "string oneof(captain, starter, bench)",
-      "joinedAt": "Date (auto)"
+      "player": "ObjectId", // references member collection
+      "role": "Integer",
+      "joined_at": "Timestamp"
     }
+    // ...one for each player on the team
   ],
   "achievements": [
     {
       "event": "ObjectId", // References an event's "_id" field.
-      "placement": "integer",
-      "achievedAt": "Date (auto)"
+      "placement": "string",
+      "achieved_at": "Timestamp"
     }
   ],
-  "createdAt": "Date (auto)",
-  "updatedAt": "Date (auto)"
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp"
 }
 ```
 
@@ -133,50 +135,37 @@ Documents of this type represent an e-sports event organized and run by an organ
 ```json
 {
   "id": "ObjectId",
-  "name": "string (required)",
-  "slug": "string (required)",
-  "description": "string (optional)",
-  "logoKey": "string (MinIO Key, optional)",
-  "bannerKey": "string (MinIO Key, optional)",
-  "game": "string (required)",
-  "participantRequirements": {
-    "minimumParticipants": "integer",
-    "maximumParticipants": "integer",
-    "participantType": "string oneof(team, user)"
-    "participantRegistrationOpen": "bool"
+  "name": "string",
+  "description": "string", //optional
+  "logo_key": "string", //MinIO key
+  "banner_key": "string", //MinIO key
+  "game": "string",
+  "participation_requirements": {
+    "min_participants": "integer",
+    "max_participants": "integer",
+    "participant_type": "string oneof(team, player)"
+    "registration_open": "boolean"
   },
-  "participants": [
-    {
-      "participantID": "ObjectId" // Reference to an account's or a team's "_id" field,
-      "registeredAt": "Date (auto)",
-      "status": "string oneof(pending, approved, rejected, waitlisted)",
-      "approvedAt": "Date (auto)",
-      "approvedBy": "ObjectId", //Reference to an account's "_id" field
-      "notes": "string (optional)"
-    },
-    ... // One for each submitted registration
-    // Actual participants are the first ${maximumParticipants} approved ordered by approval time
-  ],
-  "eventSchedule": {
-    "startsAt": "Date (auto)",
-    "endsAt": "Date (auto)"
+  "participants": ["ObjectId", ...], // references a member document
+  "schedule": {
+    "starts_at": "Timestamp",
+    "ends_at": "Timestamp"
   },
-  "eventPrizePool": {
-    "totalAmount": "integer (required)",
-    "currency": "string (ISO 4217)",
+  "prize_pool": {
+    "currency": "string", // ISO 4217
     "distribution": [ //At least one required if prize pool specified
       {
-        "placement": "integer",
+        "placement": "string",
         "amount": "integer"
       },
       ...
-    ] // Sum of amounts should equal totalAmount
+    ]
   },
-  "matches": [
-    "ObjectId" // References a match's "_id" field
-  ],
-  "createdAt": "Date (auto)",
-  "updatedAt": "Date (auto)"
+  "matches": {
+    "ObjectId": ["ObjectId", ...] // adjacency list of match IDs
+  },
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp"
 }
 ```
 
@@ -186,21 +175,15 @@ Documents of this type represent a match between participants in an organization
 
 ```json
 {
-  "id": "ObjectId",
+  "_id": "ObjectId",
   "status": "string oneof(scheduled, in-progress, completed, disputed, cancelled)",
-  "participants": [
-    {
-      "source": "string oneof(seed, match)" // Seed is a starting position in a event, match is a previous match in a event
-      // The following two fields should be mutually exclusive (one or the other exists, but not both)
-      "seed": "integer" // Seed position of participant
-      "match": "ObjectId" // Reference to previous round match up (refers to another match "_id" field)
-
-      "participantID": "ObjectId" // References an account or team "_id" field
-    }
-  ],
+  "participants": {
+    "away": "ObjectId", // references membership collection
+    "home": "ObjectId", // references membership collection
+  }
   "schedule": {
-    "startsAt": "Time (auto)",
-    "estimatedDuration": "integer (in minutes)",
+    "starts_at": "Timestamp",
+    "estimatedDuration": "Duration",
     "streamURLs": { // Omit if empty
       "twitch": "string",
       "youtube": "string",
@@ -208,108 +191,20 @@ Documents of this type represent a match between participants in an organization
     }
   },
   "result": {
-    "winner": "ObjectId", // References the "_id" field from one of the participant
-    "completedAt": "Time (auto)",
-    "reportedBy": "ObjectId" // References an account's "_id" field
-    "finalScores": {
-      "game 1": {
-        "ObjectId": "integer",
-        ... // One for each participant
-      },
-      ... // One for each game played
-    },
-    "evidence": [
-      {
-        "evidenceKey": "string (MinIO Key, optional)",
-        "evidenceDescription": "string (optional)"
-      },
-    ]
+    "winner": "ObjectId", // References the winning participants
+    "completed_at": "Timestamp",
+    "reported_by": "ObjectId" // References membership collection
+    "scores": [
+        {
+          "away": "integer",
+          "home": "integer",
+          "evidence_key": "string", //MinIO key
+          "evidence_description": "string" //optional
+        },
+        ... // one for each game played
+      ],
   },
-  "createdAt": "Date (auto)",
-  "updatedAt": "Date (auto)"
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp"
 }
 ```
-
-## Document Relationships
-
-### Account relationships
-
-**Account m<->n Organizations**
-
-- An account can belong to many organizations
-- An organization can have many accounts as members
-
-**Account m<->n Team**
-
-- An account can be part of multiple teams
-- A team consists of multiple accounts
-
-**Account m<->n Event**
-
-- An account can participate directly in an event if the `participantType` is user
-- Accounts can participate indirectly as
-  - Registrants
-  - Approvers
-  - Reporters of match data
-
-**Account 1<->n Match**
-
-- An account can
-  - Report match results
-  - participate in a match (if `participantType` is user)
-
-### Organization relationships
-
-**Organization 1<->m Team**
-
-- An organization can host multiple teams
-- An team can belong to one organization
-
-**Organization 1<->m Event**
-
-- An organization runs many events (hopefully)
-- Events belong to the organization that runs them
-
-**Organization 1<->m Account**
-
-- The creator/admin of an organization is an account
-- Ownership implied by initial membership
-- An organization can consist of many admin/staff/participant accounts
-
-### Team relationships
-
-**Team n<->m Event**
-
-- A team can play in many events
-- An event can have many competing teams
-
-**Team n<->m Match**
-
-- A team can play in many matches
-- A match can have many participating teams (typically 2)
-
-**Team 1<->m Achievement**
-
-- A team can have many achievements (if they don't suck)
-- Each achievement belong to a single team
-
-### Event relationships
-
-**Event 1<->m Match**
-
-- An event contains many matches
-- Each match belongs to a single event
-
-**Event n<->m Participant (account or team)**
-
-- Participants can be either a user or team (depending on `participantType` of the event)
-- Participants can participate in multiple events
-- Events have many participants
-
-### Match relationships
-
-**Match <-> Match**
-
-- Represents a directed graph structure
-- A match can depend on the result of previous matches
-- Used to model tournament brackets
